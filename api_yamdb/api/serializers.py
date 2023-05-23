@@ -11,3 +11,11 @@ class GenreSerializer(serializers.ModelSerializer):
 
 class TitleSerializer(serializers.ModelSerializer):
     pass
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    pass
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    pass

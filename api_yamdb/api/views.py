@@ -12,3 +12,11 @@ class GenreViewSet(viewsets.ViewSet):
 
 class TitleViewSet(viewsets.ViewSet):
     pass
+
+
+class CommentViewSet(viewsets.ViewSet):
+    pass
+
+
+class ReviewViewSet(viewsets.ViewSet):
+    pass
