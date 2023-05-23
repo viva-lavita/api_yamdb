@@ -1,42 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
-
-
-CHOICE_ROLES = [
-    ('user', 'Пользователь'),
-    ('moderator', 'Модератор'),
-    ('admin', 'Админ')
-]
-
-
-class User(AbstractUser):
-    """Кастом юзер."""
-    username = models.CharField(
-        max_length=150,
-        unique=True,
-        blank=False,
-        null=False
-    )
-    email = models.EmailField(
-        max_length=254,
-        unique=True,
-        blank=False,
-        null=False
-    )
-    # по умолчанию есть у модели, не знаю, есть ли смысл дублировать
-    # first_name = models.CharField(max_length=150, blank=True)
-    # last_name = models.CharField(max_length=150, blank=True)
-    bio = models.TextField('Биография', blank=True)
-    role = models.CharField(
-        max_length=40,
-        choices=CHOICE_ROLES,
-        default='user',
-        blank=True
-    )
-
-    def __str__(self) -> str:
-        return self.username
+from users.models import User
 
 
 class Category(models.Model):
@@ -70,7 +34,7 @@ class Title(models.Model):
         null=True
     )
     category = models.ForeignKey(
-        Genre,
+        Category,
         on_delete=models.SET_NULL,
         related_name='titles',
         blank=True,
