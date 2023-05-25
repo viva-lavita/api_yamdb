@@ -15,35 +15,30 @@ class User(AbstractUser):
     )
 
     username = models.CharField(
+        'Логин',
         max_length=150,
-        verbose_name='Логин',        
         unique=True,
         validators=([RegexValidator(regex=r'^[\w.@+-]+$')]))
-    email = models.EmailField(max_length=254,
-                              verbose_name='E-mail',                              
+    email = models.EmailField('E-mail',
+                              max_length=254,
                               unique=True)
-    confirmation_code = models.CharField(max_length=40,
+    confirmation_code = models.CharField('Проверочный код',
+                                         max_length=40,
                                          blank=True,
-                                         null=True,
-                                         verbose_name='Проверочный код')
-    first_name = models.CharField(max_length=150,
-                                  verbose_name='Имя',                                  
+                                         null=True)
+    first_name = models.CharField('Имя',
+                                  max_length=150,
                                   blank=True)
-    last_name = models.CharField(max_length=150,
-                                 verbose_name='Фамилия',                                 
+    last_name = models.CharField('Фамилия',
+                                 max_length=150,
                                  blank=True)
-    bio = models.TextField(max_length=1000,
-                           verbose_name='Биография',                           
-                           blank=True,)
-    role = models.CharField(max_length=100,
-                            verbose_name='Роль',
+    bio = models.TextField('Биография',
+                           max_length=1000,
+                           blank=True)
+    role = models.CharField('Роль',
+                            max_length=100,
                             choices=USER_ROLE,
-                            default=USER,
-                            )
-
-    class Meta:
-        verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользователи'
+                            default=USER)
 
     @property
     def is_admin(self):

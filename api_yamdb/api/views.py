@@ -6,7 +6,6 @@ from django.shortcuts import get_object_or_404
 from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
 from django.db import IntegrityError
 from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import LimitOffsetPagination
@@ -56,6 +55,7 @@ class SignUpView(APIView):
 
 
 class UsersViewSet(viewsets.ModelViewSet):
+    '''Вьюсет для модели User.'''
     queryset = User.objects.all()
     serializer_class = UsersSerializer
     permission_classes = (IsAdmin,)

@@ -54,7 +54,6 @@ class UsersSerializer(serializers.ModelSerializer):
         )
 
 
-
 class CategorySerializer(serializers.ModelSerializer):
     pass
 
