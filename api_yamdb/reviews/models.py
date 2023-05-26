@@ -53,7 +53,7 @@ class Review(models.Model):
         verbose_name='Автор',
         related_name='reviews'
     )
-    score = models.ImageField(
+    score = models.IntegerField(
         'Оценка',
         validators=[
             MinValueValidator(1),
@@ -72,12 +72,12 @@ class Review(models.Model):
         related_name='reviews'
     )
 
-    def __str__(self) -> str:
-        return self.text
-
     class Meta:
         unique_together = ('title', 'author')
         ordering = ('pub_date',)
+
+    def __str__(self) -> str:
+        return self.text
 
 
 class Comment(models.Model):
@@ -92,7 +92,10 @@ class Comment(models.Model):
         on_delete=models.CASCADE,
         related_name='comments'
     )
-    text = models.TextField('Текст комментария')
+    text = models.TextField(
+        'Текст комментария',
+        max_length=200
+    )
     pub_date = models.DateTimeField(
         'Дата добавления',
         auto_now_add=True,
@@ -101,6 +104,3 @@ class Comment(models.Model):
 
     def __str__(self) -> str:
         return self.text
-
-    class Meta:
-        ordering = ('pub_date',)
