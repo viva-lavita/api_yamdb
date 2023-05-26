@@ -18,12 +18,13 @@ from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework.views import APIView
 
 from .filters import TitleFilters
-from .permissions import IsAdminOrReadOnly, IsAdmin
+from .permissions import AuthorOrStaffOrReadOnly, IsAdminOrReadOnly, IsAdmin
 from .serializers import (
-    CategorySerializer, GenreSerializer, TitleSerializer, TitleWriteSerializer,
+    CategorySerializer, CommentSerializer, GenreSerializer,
+    ReviewSerializer, TitleSerializer, TitleWriteSerializer,
     TokenSerializer, UserCreateSerializer, UsersSerializer
 )
-from reviews.models import Category, Genre, Title
+from reviews.models import Category, Genre, Review, Title
 from users.models import User
 
 
@@ -140,3 +141,45 @@ class TitleViewSet(viewsets.ModelViewSet):
         if self.action in ('retrieve', 'list'):
             return TitleSerializer
         return TitleWriteSerializer
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
+    permission_classes = (AuthorOrStaffOrReadOnly,)
+    pagination_class = LimitOffsetPagination
+
+    def get_queryset(self):
+        """Переопределяем метод queryset."""
+        review = get_object_or_404(
+            Review,
+            id=self.kwargs.get('review_id'))
+        return review.comments.all()
+
+    def perform_create(self, serializer):
+        review = get_object_or_404(
+            Review,
+            id=self.kwargs.get('review_id'))
+        serializer.save(author=self.request.user, review=review)
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    serializer_class = ReviewSerializer
+    permission_classes = (AuthorOrStaffOrReadOnly,)
+    pagination_class = LimitOffsetPagination
+
+    def get_queryset(self):
+        """Переопределяем метод queryset."""
+        title = get_object_or_404(
+            Title,
+            id=self.kwargs.get('title_id'))
+        return title.reviews.all()
+
+    def perform_create(self, serialaizer):
+        """Переопределяем метод create."""
+        serialaizer.save(
+            title=get_object_or_404(
+                Title,
+                id=self.kwargs.get('title_id')
+            ),
+            author=self.request.user,
+        )
