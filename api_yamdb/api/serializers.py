@@ -5,10 +5,6 @@ from reviews.models import Category, Comment, Genre, Title, Review
 from users.models import User
 
 
-MIN_VALUE = 1
-MAX_VALUE = 10
-
-
 class TokenSerializer(serializers.ModelSerializer):
     username = serializers.CharField(required=True)
     confirmation_code = serializers.CharField(required=True)
@@ -77,9 +73,7 @@ class GenreSerializer(serializers.ModelSerializer):
 
 class TitleSerializer(serializers.ModelSerializer):
     rating = serializers.IntegerField()
-    genre = GenreSerializer(
-        many=True
-    )
+    genre = GenreSerializer(many=True)
     category = CategorySerializer()
 
     class Meta:
@@ -127,7 +121,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         author = self.context['request'].user
         title_id = self.context['view'].kwargs.get('title_id')
         if Review.objects.filter(author=author, title__id=title_id).exists():
-            raise serializers.ValidationError("Автор уже оставлял отзыв")
+            raise serializers.ValidationError('Автор уже оставлял отзыв.')
         return data
 
     class Meta:

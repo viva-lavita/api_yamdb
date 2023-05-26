@@ -53,6 +53,10 @@ class User(AbstractUser):
         default=USER
     )
 
+    class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+
     @property
     def is_admin(self) -> bool:
         return self.is_staff or self.role == User.ADMIN

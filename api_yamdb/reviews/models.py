@@ -6,7 +6,7 @@ from users.models import User
 class Category(models.Model):
     """Категории (типы) произведений."""
     name = models.CharField('Категория', max_length=256)
-    slug = models.SlugField(unique=True)  # null и blank по умолчанию False
+    slug = models.SlugField(unique=True)
 
     def __str__(self) -> str:
         return self.name
@@ -15,7 +15,7 @@ class Category(models.Model):
 class Genre(models.Model):
     """Жанры."""
     name = models.CharField('Жанр', max_length=256)
-    slug = models.SlugField(unique=True)  # null и blank по умолчанию False
+    slug = models.SlugField(unique=True)
 
     def __str__(self) -> str:
         return self.name
