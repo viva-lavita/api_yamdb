@@ -1,16 +1,24 @@
 from django.urls import include, path
 from rest_framework.routers import SimpleRouter
 
-from .views import CategoryViewSet, GenreViewSet, TitleViewSet
+from .views import (CategoryViewSet, GenreViewSet, SignUpView,
+                    TitleViewSet, TokenView, UsersViewSet)
 
-router = SimpleRouter()
 
-router.register('categories', CategoryViewSet)
-router.register('genres', GenreViewSet)
-router.register('titles', TitleViewSet)
+app_name = "api"
+
+router_v1 = SimpleRouter()
+
+router_v1.register('users', UsersViewSet, basename='users')
+router_v1.register('categories', CategoryViewSet)
+router_v1.register('genres', GenreViewSet)
+router_v1.register('titles', TitleViewSet)
 
 
 urlpatterns = [
-    path('v1/', include(router.urls)),
-    path(''),  # здесь будет аунтефикация
+    path('v1/', include(router_v1.urls)),
+    path('v1/auth/', include([
+        path('signup/', SignUpView.as_view()),
+        path('token/', TokenView.as_view())
+    ])),
 ]
