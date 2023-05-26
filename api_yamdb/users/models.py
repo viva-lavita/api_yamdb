@@ -52,7 +52,7 @@ class User(AbstractUser):
         choices=USER_ROLE,
         default=USER
     )
-    
+
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'

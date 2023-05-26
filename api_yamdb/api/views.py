@@ -110,6 +110,7 @@ class TokenView(APIView):
 
 class CreateListDestroyViewSet(CreateModelMixin, DestroyModelMixin,
                                ListModelMixin, viewsets.GenericViewSet):
+    """Кастом миксин вьюсет для моделей категорий и жанров."""
     pagination_class = LimitOffsetPagination
     filter_backends = (SearchFilter,)
     search_fields = ('name',)
@@ -118,17 +119,19 @@ class CreateListDestroyViewSet(CreateModelMixin, DestroyModelMixin,
 
 
 class CategoryViewSet(CreateListDestroyViewSet):
+    """Вьюсет для модели категорий."""
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 
 class GenreViewSet(CreateListDestroyViewSet):
+    """Вьюсет модели жанров."""
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    """Вью произведений. Доступ: доступно без токена."""
+    """Вьюсет для модели произведений."""
     queryset = Title.objects.annotate(
         rating=Avg('reviews__score')
     ).all()
@@ -144,12 +147,12 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 
 class CommentViewSet(viewsets.ModelViewSet):
+    """Вьюсет для модели комментариев."""
     serializer_class = CommentSerializer
     permission_classes = (AuthorOrStaffOrReadOnly,)
     pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
-        """Переопределяем метод queryset."""
         review = get_object_or_404(
             Review,
             id=self.kwargs.get('review_id'))
@@ -163,19 +166,18 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
+    """Вьюсет для модели отзывов."""
     serializer_class = ReviewSerializer
     permission_classes = (AuthorOrStaffOrReadOnly,)
     pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
-        """Переопределяем метод queryset."""
         title = get_object_or_404(
             Title,
             id=self.kwargs.get('title_id'))
         return title.reviews.all()
 
     def perform_create(self, serialaizer):
-        """Переопределяем метод create."""
         serialaizer.save(
             title=get_object_or_404(
                 Title,
