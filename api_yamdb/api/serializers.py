@@ -86,11 +86,13 @@ class TitleWriteSerializer(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(
         queryset=Genre.objects.all(),
         many=True,
-        slug_field='slug'
+        slug_field='slug',
+        required=True
     )
     category = serializers.SlugRelatedField(
         queryset=Category.objects.all(),
-        slug_field='slug'
+        slug_field='slug',
+        required=True
     )
 
     class Meta:

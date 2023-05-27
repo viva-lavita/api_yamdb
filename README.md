@@ -11,9 +11,8 @@ YaMDb это API-сервис для сбора и публикации отзы
 
 * [Python 3.9](https://www.python.org/)
 * [Django 3.2](https://www.djangoproject.com/)
-* [Django REST framework](www.django-rest-framework.org/)
+* [Django REST framework 3.12.4](www.django-rest-framework.org/)
 * [Simple JWT](https://django-rest-framework-simplejwt.readthedocs.io)
-* [Djoser](https://djoser.readthedocs.io)
 
 ## Документация 
 
@@ -90,72 +89,80 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-## Работа с API для всех пользователей
+### Пользовательские роли
 
-Для неавторизованных пользователей работа с API доступна в режиме чтения, что-либо изменить или создать не получится.
+- Аноним — может просматривать описания произведений, читать отзывы и комментарии.
+- Аутентифицированный пользователь (user) — может читать всё, как и Аноним, может публиковать отзывы и ставить оценки произведениям (фильмам/книгам/песенкам), может комментировать отзывы; может редактировать и удалять свои отзывы и комментарии, редактировать свои оценки произведений. Эта роль присваивается по умолчанию каждому новому пользователю.
+- Модератор (moderator) — те же права, что и у Аутентифицированного пользователя, плюс право удалять и редактировать любые отзывы и комментарии.
+- Администратор (admin) — полные права на управление всем контентом проекта. Может создавать и удалять произведения, категории и жанры. Может назначать роли пользователям.
+- Суперюзер Django должен всегда обладать правами администратора, пользователя с правами admin. Даже если изменить пользовательскую роль суперюзера — это не лишит его прав администратора. Суперюзер — всегда администратор, но администратор — не обязательно суперюзер.
 
-## Доступные эндпоинты и методы:
+## Доступные эндпоинты:
 
 ```r
-GET, POST  api/v1/posts/ - получить список всех публикаций, создание новых публикаций
-При указании параметров limit и offset выдача должна работать с пагинацией
-GET, PUT, PATCH, DELETE  api/v1/posts/{id}/ - получение, обновление, удаление публикации по id
-GET  api/v1/groups/ - получение списка сообществ
-GET  api/v1/groups/{id}/ - получение информации о сообществе по id
-GET, POST  api/v1/{post_id}/comments/ - получение всех комментариев к публикации
-GET, PUT, PATCH, DELETE  api/v1/{post_id}/comments/{id}/ - получение, обновление, удаление комментария к публикации по id
-GET, POST  api/v1/follow/ - получить список всех подписок автора запроса, создание новых подписок
-POST  api/v1/jwt/create/ - создание JWT-токена
-POST  api/v1/jwt/refresh/ - обновление JWT-токена
-POST  api/v1/jwt/verify/ - проверить JWT-токен
+Права доступа: Доступно без токена.
+POST /api/v1/auth/signup/ - Регистрация нового пользователя
+POST /api/v1/auth/token/ - Получение JWT-токена
+GET POST /api/v1/users/me/ - Получение/
+изменение данных своей учетной записи - только авторизированные пользователи
+GET /api/v1/categories/ - Получение списка всех категорий
+GET /api/v1/genres/ - Получение списка всех жанров
+GET /api/v1/titles/ - Получение списка всех произведений
+GET POST /api/v1/titles/{title_id}/reviews/ - Получение списка всех отзывов/
+добавление отзыва - только авторизированные пользователи
+GET PATCH DEL api/v1/titles/{title_id}/reviews/{review_id}/ - Получение отзыва по id/
+удаление и частичное изменение может только автор, модератор или администратор
+GET POST /api/v1/titles/{title_id}/reviews/{review_id}/comments/ - Получение списка всех комментариев 
+к отзыву/добалвение отзыва - только авторизированные пользователи
+GET PACH DEL api/v1/titles/{title_id}/reviews/{review_id}/comments/{comment_id}/ - Получение комментария к отзыву/
+удаление и частичное изменение доступно только автору, модератору или администратору
+
+Права доступа: Администратор
+GET /api/v1/users/ - Получение списка всех пользователей
+POST DEL /api/v1/categories/ - Добавление/удаление новой категории
+POST DEL /api/v1/genres/ - Добавление/удаление нового жанра
+POST DEL /api/v1/titles/ - Добавление/удаление нового произведения
 ```
 
 ## Примеры работы с API для авторизованных пользователей
 
-- Для создания публикации используем:
+- Получение списка всех комментариев:
 
 ```r
-POST /api/v1/posts/
+GET api/v1/titles/{title_id}/reviews/{review_id}/comments/
+```
+
+в body ответа
+
+```json
+{
+  "count": 0,
+  "next": "string",
+  "previous": "string",
+  "results": [
+    {
+      "id": 0,
+      "text": "string",
+      "author": "string",
+      "pub_date": "2019-08-24T14:15:22Z"
+    }
+    ...
+  ]
+}
+```
+
+- Обновление отзыва:
+
+```r
+PATCH api/v1/titles/{title_id}/reviews/{review_id}/
 ```
 
 в body запроса
 
 ```json
 {
-    "text": "string",
-    "image": "string",
-    "group": 0
-}
-```
-в body ответа
-
-```json
-[
-    {
-        "id": 0,
-        "author": "string",
-        "image": "string",
-        "text": "string",
-        "pub_date": "2019-08-24T14:15:22Z",
-        "group": 0
-    },
-...
-]
-```
-
-- Обновление публикации:
-
-```r
-PUT /api/v1/posts/{id}/
-```
-
-в body
-
-```json
-{
-    "text": "string",
-    "image": "string",
-    "group": 0
+  "text": "string",
+  "score": 1
 }
 ```
 
@@ -163,19 +170,18 @@ PUT /api/v1/posts/{id}/
 
 ```json
 {
-    "id": 0,
-    "author": "string",
-    "image": "string",
-    "text": "string",
-    "pub_date": "2019-08-24T14:15:22Z",
-    "group": 0
+  "id": 0,
+  "text": "string",
+  "author": "string",
+  "score": 1,
+  "pub_date": "2019-08-24T14:15:22Z"
 }
 ```
 
-- Удаление публикации:
+- Удаление комментария:
 
 ```r
-DEL /api/v1/posts/{id}/
+DEL api/v1/titles/{title_id}/reviews/{review_id}/comments/{comment_id}/
 ```
 
 Получение доступа к эндпоинту /api/v1/follow/ (подписки) доступен только для авторизованных пользователей.
@@ -183,14 +189,39 @@ DEL /api/v1/posts/{id}/
 Подписка пользователя от имени которого сделан запрос, на пользователя переданного в теле запроса. Анонимные запросы запрещены.
 
 ```r
-GET /api/v1/follow/
+GET /api/v1/users/me/
 ```
 
-в body
+в body ответа
 
 ```r
 {
-    "following": "string"
+"username": "string",
+"email": "user@example.com",
+"first_name": "string",
+"last_name": "string",
+"bio": "string",
+"role": "user"
+}
+```
+
+- Добавление пользователя 
+(доступ - только Администратор, поля username и email должны быть уникальными):
+
+```r
+POST http://127.0.0.1:8000/api/v1/users/
+```
+
+в body 
+
+```r
+{
+  "username": "string",
+  "email": "user@example.com",
+  "first_name": "string",
+  "last_name": "string",
+  "bio": "string",
+  "role": "user"
 }
 ```
 
@@ -198,23 +229,26 @@ GET /api/v1/follow/
 
 ```r
 {
-    "id": 0,
-    "user": "string",
-    "following": "string"
+  "username": "string",
+  "email": "user@example.com",
+  "first_name": "string",
+  "last_name": "string",
+  "bio": "string",
+  "role": "user"
 }
 ```
+## Алгоритм авторизации пользователя:
 
-- Добавление комментария:
+- Регистрация нового пользователя:
 
-```r
-GET api/v1/posts/{post_id}/comments/
-```
+ POST /api/v1/auth/signup/
 
-в body
+в body 
 
 ```r
 {
-    "text": "string"
+  "email": "user@example.com",
+  "username": "string"
 }
 ```
 
@@ -222,71 +256,31 @@ GET api/v1/posts/{post_id}/comments/
 
 ```r
 {
-    "id": 0,
-    "author": "string",
-    "text": "string",
-    "created": "2019-08-24T14:15:22Z",
-    "post": 0
+  "email": "string",
+  "username": "string"
 }
 ```
-## Добавить группу в проект нужно через админ панель Django:
+Сервис YaMDB отправляет письмо с кодом подтверждения (confirmation_code) на указанный адрес email.
 
-после авторизации, переходим в раздел Groups и создаем группы.
+- Получение JWT-токена:
 
-```r
-admin/
-```
-
-- Доступ авторизованным пользователем доступен по JWT-токену (Joser), который можно получить выполнив POST запрос по адресу:
+в body 
 
 ```r
-POST /api/v1/jwt/create/
-```
-
-- Передав в body данные пользователя (например в postman):
-
-```json
 {
-    "username": "string",
-    "password": "string"
+  "username": "string",
+  "confirmation_code": "string"
 }
 ```
 
-в body ответа два ключа: 
+в body ответа
 
-```json
+```r
 {
-    "refresh": "string",
-    "access": "string"
+  "token": "string"
 }
 ```
 
-Токен вернётся в поле access, а данные из поля refresh пригодятся для обновления токена. 
+В результате пользователь получает токен и может работать с API проекта, отправляя этот токен с каждым запросом. 
 
-- Полученный токен (значение по ключу "access") добавляем в Headers (postman), после чего буду доступны все функции проекта:
-
-```r
-Authorization: Bearer {your_token}
-```
-
-Если ваш токен утрачен, украден или каким-то иным образом скомпрометирован, вам понадобится отключить его и получить новый. Для этого отправьте POST-запрос на тот же адрес /auth/jwt/create/, а в теле запроса в поле refresh передайте refresh-токен. 
-
-- Обновить JWT-токен:
-
-```r
-POST /api/v1/jwt/refresh/
-```
-
-- Проверить JWT-токен:
-
-```r
-POST /api/v1/jwt/verify/
-```
-
-- Так же в проекте API реализована пагинация (LimitOffsetPagination):
-
-```r
-GET /api/v1/posts/?limit=5&offset=0
-```
-
-Автор/Контакты, дописать 
+### Автор: [Виктория Сопина](https://github.com/viva-lavita)

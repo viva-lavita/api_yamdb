@@ -12,7 +12,6 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.mixins import (
     CreateModelMixin, DestroyModelMixin, ListModelMixin
 )
-from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework.views import APIView
@@ -72,7 +71,6 @@ class UsersViewSet(viewsets.ModelViewSet):
     lookup_field = 'username'
     search_fields = ('username',)
     http_method_names = ['get', 'post', 'patch', 'delete']
-    pagination_class = LimitOffsetPagination
 
     @action(detail=False, methods=['get', 'patch'], url_path='me',
             url_name='me', permission_classes=(permissions.IsAuthenticated,))
@@ -111,7 +109,6 @@ class TokenView(APIView):
 class CreateListDestroyViewSet(CreateModelMixin, DestroyModelMixin,
                                ListModelMixin, viewsets.GenericViewSet):
     """Кастом миксин вьюсет для моделей категорий и жанров."""
-    pagination_class = LimitOffsetPagination
     filter_backends = (SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
@@ -138,7 +135,6 @@ class TitleViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilters
     permission_classes = [IsAdminOrReadOnly]
-    pagination_class = LimitOffsetPagination
 
     def get_serializer_class(self):
         if self.action in ('retrieve', 'list'):
@@ -150,7 +146,6 @@ class CommentViewSet(viewsets.ModelViewSet):
     """Вьюсет для модели комментариев."""
     serializer_class = CommentSerializer
     permission_classes = (AuthorOrStaffOrReadOnly,)
-    pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
         review = get_object_or_404(
@@ -169,7 +164,6 @@ class ReviewViewSet(viewsets.ModelViewSet):
     """Вьюсет для модели отзывов."""
     serializer_class = ReviewSerializer
     permission_classes = (AuthorOrStaffOrReadOnly,)
-    pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
         title = get_object_or_404(
