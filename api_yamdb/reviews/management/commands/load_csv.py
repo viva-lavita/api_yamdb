@@ -31,14 +31,24 @@ class Command(BaseCommand):
         file_path = options['path']
         _model = apps.get_model(app_name, model_name)
         objects_list = []
-        with open(file_path, 'r', encoding='utf-8') as csv_file:
-            reader = csv.reader(csv_file)
-            header = next(reader)
+        try:
+            with open(file_path, 'r', encoding='utf-8') as csv_file:
+                reader = csv.reader(csv_file)
+                header = next(reader)
+        except FileNotFoundError:
+            print(f'Файл "{file_path}" не найден, неверный путь к файлу')
+        except UnicodeDecodeError:
+            print(f'Ошибка декодирования файла "{file_path}",'
+                  ' проверьте кодировку')
+        except Exception:
+            print('Непонятная ошибка, зовите программиста')
+        else:
+            print('Данные успешно импортированы')
             for row in reader:
                 objects_list.append(
                     _model(**{key: value for key, value in zip(header, row)})
                 )
         _model.objects.bulk_create(objects_list)
         self.stdout.write(self.style.SUCCESS(
-            f'Данные в модель {model_name} загружены.'
+            f'Данные в модель {model_name} загружены'
         ))
