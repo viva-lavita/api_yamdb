@@ -28,10 +28,10 @@ from users.models import User
 
 
 class SignUpView(APIView):
-    '''
+    """
     POST-запрос с email и username генерирует
     письмо с кодом для получения токена.
-    '''
+    """
     permission_classes = (permissions.AllowAny,)
     serializer_class = UserCreateSerializer
     queryset = User.objects.all()
@@ -63,7 +63,7 @@ class SignUpView(APIView):
 
 
 class UsersViewSet(viewsets.ModelViewSet):
-    '''Вьюсет для модели User.'''
+    """Вьюсет для модели User."""
     queryset = User.objects.all()
     serializer_class = UsersSerializer
     permission_classes = (IsAdmin,)
@@ -88,10 +88,10 @@ class UsersViewSet(viewsets.ModelViewSet):
 
 
 class TokenView(APIView):
-    '''
+    """
     POST-запрос с username и confirmation_code
     возвращает JWT-токен.
-    '''
+    """
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request):

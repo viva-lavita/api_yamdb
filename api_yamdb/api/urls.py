@@ -6,7 +6,7 @@ from .views import (CategoryViewSet, CommentViewSet, GenreViewSet,
                     TokenView, UsersViewSet)
 
 
-app_name = "api"
+app_name = 'api'
 
 router_v1 = SimpleRouter()
 
