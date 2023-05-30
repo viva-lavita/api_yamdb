@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from users.models import User
+from django.shortcuts import get_object_or_404
 
 
 class TokenSerializer(serializers.ModelSerializer):
@@ -13,6 +14,9 @@ class TokenSerializer(serializers.ModelSerializer):
     def validate(self, data):
         username = data.get('username')
         confirmation_code = data.get('confirmation_code')
+        user = get_object_or_404(User, username=data['username'])
+        if data != user.confirmation_code:
+            raise serializers.ValidationError('Неверный код подтверждения')
         if username is None:
             raise serializers.ValidationError(
                 'Для аутентификации требуется ввести имя пользователя')
