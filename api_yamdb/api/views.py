@@ -1,16 +1,12 @@
-import uuid
-
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
-from django.db import IntegrityError
 from django.db.models import Avg
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
-from rest_framework.exceptions import ValidationError
 from rest_framework.mixins import (
     CreateModelMixin, DestroyModelMixin, ListModelMixin
 )
@@ -43,12 +39,12 @@ class SignUpView(APIView):
         serializer = UserCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         email = serializer.validated_data['email']
-        confirmation_code = str(uuid.uuid3(uuid.NAMESPACE_X500, email))
-        user, created = User.objects.get_or_create(
-            **serializer.validated_data,
-            confirmation_code=confirmation_code
-        )
-        
+        username = serializer.validated_data['username']
+        user, code_created = User.objects.get_or_create(
+            email=email, username=username)
+        confirmation_code = default_token_generator.make_token(user)
+        user.confirmation_code = confirmation_code
+        user.save()
         send_mail(
             subject='Код подтверждения',
             message=f'Ваш код подтверждения: {confirmation_code}',
@@ -96,12 +92,12 @@ class TokenView(APIView):
         serializer.is_valid(raise_exception=True)
         username = serializer.data['username']
         confirmation_code = serializer.validated_data['confirmation_code']
-        user = get_object_or_404(User, username=username)        
+        user = get_object_or_404(User, username=username)
         if confirmation_code != user.confirmation_code:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         refresh = RefreshToken.for_user(user)
         return Response({'token': str(refresh.access_token)},
-                    status=status.HTTP_200_OK)
+                        status=status.HTTP_200_OK)
 
 
 class CreateListDestroyViewSet(CreateModelMixin, DestroyModelMixin,
