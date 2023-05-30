@@ -3,8 +3,6 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 
 
-
-
 class User(AbstractUser):
     ADMIN = 'admin'
     MODERATOR = 'moderator'
