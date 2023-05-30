@@ -80,10 +80,7 @@ class TokenView(APIView):
         serializer = TokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         username = serializer.data['username']
-        confirmation_code = serializer.validated_data['confirmation_code']
         user = get_object_or_404(User, username=username)
-        if confirmation_code != user.confirmation_code:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
         refresh = RefreshToken.for_user(user)
         return Response({'token': str(refresh.access_token)},
                         status=status.HTTP_200_OK)
