@@ -3,6 +3,8 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 
 
+
+
 class User(AbstractUser):
     ADMIN = 'admin'
     MODERATOR = 'moderator'
@@ -59,7 +61,10 @@ class User(AbstractUser):
 
     @property
     def is_admin(self) -> bool:
-        return self.is_staff or self.role == User.ADMIN
+        return (
+            self.is_staff or self.role == User.ADMIN
+            or self.is_superuser
+        )
 
     @property
     def is_moderator(self) -> bool:
